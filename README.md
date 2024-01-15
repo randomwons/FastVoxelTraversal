@@ -13,6 +13,10 @@ To run the program, use the following command:
 python ray_vis.py
 ```
 
+## Demo
+![Fast Ray Voxel Traversal 2024-01-15 14-16-31](https://github.com/randomwons/FastVoxelTraversal/assets/97656142/faf32fca-8d9b-44ab-af81-8c20332f6cbe)
+
+
 ## LICENSE
 This project is licensed under the terms of the MIT license.
 
