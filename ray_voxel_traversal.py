@@ -19,6 +19,43 @@ class RayTraversalVoxel:
         self.voxel_coords = get_grid_coords(self.voxel_dims)
         self.world_pts = self.voxel_origin + voxel_size * self.voxel_coords
     
+    def rays_traversal(self, ray_origin, rays_dir, ray_max=5):
+            
+        zero_mask = (rays_dir == 0)
+        
+        rays_origin = np.broadcast_to(ray_origin, rays_dir.shape)
+        
+        start_point = rays_origin
+        end_point = rays_origin + rays_dir * ray_max
+        
+        start_voxel_index = np.floor((start_point - self.voxel_origin) / self.voxel_size)
+        end_voxel_index = np.floor((end_point - self.voxel_origin) / self.voxel_size)
+
+        step = np.sign(rays_dir).astype(np.int32)
+
+        next_voxel_boundary = (start_voxel_index + (step + 1) / 2) * self.voxel_size + self.voxel_origin
+
+        rays_dir[zero_mask] = 1 # zero divide
+        tMax = (next_voxel_boundary - rays_origin) / rays_dir
+        tMax[zero_mask] = np.inf
+
+        tDelta = self.voxel_size / rays_dir * step
+
+        visitied_voxel_index = []
+        visitied_voxel_index = [start_voxel_index.copy()]
+        
+        current_voxel_index = start_voxel_index.copy()
+        check = np.ones_like(current_voxel_index)
+        
+        all_indices = np.arange(current_voxel_index.shape[0])
+        
+        while (not np.all(check == 0)):
+
+            min_index = np.argsort(tMax)[:, 0]
+            current_voxel_index[all_indices, min_index] += step[all_indices, min_index] * check[all_indices, 0]
+            tMax[all_indices, min_index] += tDelta[all_indices, min_index] * check[all_indices, 0]
+            check[np.all(current_voxel_index == end_voxel_index, axis=1)] = 0
+    
     def ray_traversal(self, ray_origin, ray_dir, ray_max=5):
                 
         zero_mask = (ray_dir == 0)
